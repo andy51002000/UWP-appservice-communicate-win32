@@ -8,6 +8,8 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <TextBlock Margin="243,238,233,645" FontSize="36">Result: </TextBlock>
+        <Button Content="Start" Margin="240,344,0,584" Height="72" Width="947" FontSize="36" Click="Button_Click"/>
 
     </Grid>
 </Page>

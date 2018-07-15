@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.AppService;
+using Windows.ApplicationModel.Background;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -14,6 +16,10 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+
+
+using Windows.ApplicationModel;
+using System.Threading.Tasks;
 
 namespace AppServiceSample
 {
@@ -96,5 +102,80 @@ namespace AppServiceSample
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }
+
+
+        #region For AppService
+
+        static bool sendRequestLock = true;
+        public static AppServiceConnection Connection = null;
+        BackgroundTaskDeferral appServiceDeferral = null;
+
+        private async void APPLaunch()
+        {
+ 
+ 
+           await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+        }
+
+        private async Task SendRequestToWin32()
+        {
+
+            ValueSet request = new ValueSet();
+            request.Add("GetBiosSerialnumer", "");
+
+
+            AppServiceResponse response = null;
+            response = await Connection.SendMessageAsync(request);
+
+            string serialNumber = response.Message["serialNumber"] as string;
+
+
+
+        }
+
+
+
+        /// <summary>
+        /// Override the Application.OnBackgroundActivated method to handle background activation in 
+        /// the main process. This entry point is used when BackgroundTaskBuilder.TaskEntryPoint is 
+        /// not set during background task registration.
+        /// </summary>
+        /// <param name="args"></param>
+        /// 
+        /// <summary>
+        /// Initializes the app service on the host process 
+        /// </summary>
+        protected async override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        {
+
+            base.OnBackgroundActivated(args);
+
+            if (args.TaskInstance.TriggerDetails is AppServiceTriggerDetails)
+            {
+
+                appServiceDeferral = args.TaskInstance.GetDeferral();
+                args.TaskInstance.Canceled += OnTaskCanceled; // Associate a cancellation handler with the background task.
+
+                AppServiceTriggerDetails details = args.TaskInstance.TriggerDetails as AppServiceTriggerDetails;
+                Connection = details.AppServiceConnection;
+
+                await SendRequestToWin32();
+            }
+        }
+
+        /// <summary>
+        /// Associate the cancellation handler with the background task 
+        /// </summary>
+        private void OnTaskCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
+        {
+            if (this.appServiceDeferral != null)
+            {
+                // Complete the service deferral.
+                this.appServiceDeferral.Complete();
+            }
+        }
+        #endregion
+
     }
 }

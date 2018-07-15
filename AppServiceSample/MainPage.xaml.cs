@@ -26,5 +26,9 @@ namespace AppServiceSample
         {
             this.InitializeComponent();
         }
+
+        private async System.Threading.Tasks.Task Button_Click(object sender, RoutedEventArgs e)
+        {
+         }
     }
 }
