@@ -26,10 +26,14 @@ namespace AppServiceSample
         public MainPage()
         {
             this.InitializeComponent();
+
+
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
+            var value = Windows.Storage.ApplicationData.Current.LocalSettings.Values["serialNumber"];
+            this.txtlabel.Text = $"Result: {value as string}";
             return;
         }
     }

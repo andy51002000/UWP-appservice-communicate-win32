@@ -45,6 +45,8 @@ namespace AppServiceSample
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            APPLaunch();
+
             Frame rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
@@ -78,7 +80,6 @@ namespace AppServiceSample
                 Window.Current.Activate();
             }
 
-            APPLaunch();
         }
 
         /// <summary>
@@ -133,6 +134,9 @@ namespace AppServiceSample
             string serialNumber = response.Message["serialNumber"] as string;
 
 
+            var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+
+            localSettings.Values["serialNumber"] = serialNumber;
 
         }
 
